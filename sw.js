@@ -1,4 +1,4 @@
-const CACHE_NAME = 'event-log-v1';
+const CACHE_NAME = 'noted-v1';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
