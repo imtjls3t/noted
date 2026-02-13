@@ -1,0 +1,17 @@
+{
+  "name": "Event Log",
+  "short_name": "EventLog",
+  "description": "Log events with voice, search them later",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
