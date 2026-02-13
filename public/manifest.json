@@ -1,7 +1,7 @@
 {
-  "name": "Event Log",
-  "short_name": "EventLog",
-  "description": "Log events with voice, search them later",
+  "name": "Noted.",
+  "short_name": "Noted.",
+  "description": "Speak it, save it, search it later",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#1a1a2e",

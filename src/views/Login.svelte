@@ -34,7 +34,7 @@
       <line x1="12" y1="19" x2="12" y2="23"/>
       <line x1="8" y1="23" x2="16" y2="23"/>
     </svg>
-    <h1>Event Log</h1>
+    <h1>Noted.</h1>
     <p class="subtitle">{isSignUp ? 'Create an account' : 'Sign in to continue'}</p>
   </div>
 

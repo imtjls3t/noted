@@ -1,6 +1,6 @@
-# Event Log
+# Noted.
 
-Voice-first event logging PWA. Speak an event, save it, search it later.
+Voice-first event logging PWA. Speak it, save it, search it later.
 
 ## Stack
 
