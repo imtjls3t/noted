@@ -2,18 +2,17 @@
   import { addEvent } from '../lib/supabase.js';
   import { transcribeWhisper } from '../lib/transcribe.js';
   import { createRecognition, isSupported } from '../lib/speech.js';
+  import { getMyProfile } from '../lib/profiles.js';
 
   const APP_VERSION = 9;
-  const PREMIUM_EMAIL = 'usual-polo-uphill@duck.com';
-
-  let { userEmail } = $props();
 
   let text = $state('');
   let state = $state('idle'); // 'idle' | 'recording' | 'transcribing' | 'saving' | 'saved'
   let error = $state('');
   let cancelled = false;
 
-  let isPremium = $derived(userEmail === PREMIUM_EMAIL);
+  let isPremium = $state(false);
+  let profileLoaded = $state(false);
 
   // MediaRecorder for Whisper path
   let mediaRecorder = null;
@@ -23,9 +22,16 @@
   // Web Speech API for free path
   let recognition = null;
 
-  // Auto-start recording on mount
+  // Load premium status then auto-start recording
   $effect(() => {
-    startRecording();
+    getMyProfile().then(profile => {
+      isPremium = profile?.is_premium ?? false;
+      profileLoaded = true;
+      startRecording();
+    }).catch(() => {
+      profileLoaded = true;
+      startRecording();
+    });
   });
 
   function startRecording() {

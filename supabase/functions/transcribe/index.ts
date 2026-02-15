@@ -1,7 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_EMAIL = "usual-polo-uphill@duck.com";
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -34,7 +32,18 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  if (user.email !== ALLOWED_EMAIL) {
+  // Check premium status from profiles table
+  const adminClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+  const { data: profile } = await adminClient
+    .from("profiles")
+    .select("is_premium")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.is_premium) {
     return new Response(JSON.stringify({ error: "Whisper not available for this account" }), { status: 403 });
   }
 

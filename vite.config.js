@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import basicSsl from '@vitejs/plugin-basic-ssl'
@@ -8,5 +9,13 @@ export default defineConfig({
   base: '/noted/',
   server: {
     allowedHosts: ['sandbox.orb.local'],
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        admin: resolve(__dirname, 'admin/index.html'),
+      },
+    },
   },
 })
