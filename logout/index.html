@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logging out...</title>
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+      const supabase = createClient(
+        'https://mmouwjthtuydpibxfbkq.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tb3V3anRodHV5ZHBpYnhmYmtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5NTYwNzcsImV4cCI6MjA4NjUzMjA3N30.e-Aed6B6ZiXmJ94GujPqMXiIDKLmaRDqkUTXli-lAkc'
+      );
+      await supabase.auth.signOut();
+      window.location.href = '/noted/';
+    </script>
+  </head>
+  <body style="background:#0a0f1e;color:#8892b0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:system-ui">
+    <p>Logging out...</p>
+  </body>
+</html>
