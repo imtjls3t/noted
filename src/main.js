@@ -7,7 +7,7 @@ const app = mount(App, {
 })
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
+  navigator.serviceWorker.register('/noted/sw.js');
 }
 
 export default app

@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export async function transcribeWhisper(audioBlob) {
   const { data: { session } } = await supabase.auth.getSession();
@@ -13,15 +14,23 @@ export async function transcribeWhisper(audioBlob) {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${session.access_token}`,
+      apikey: SUPABASE_ANON_KEY,
     },
     body: formData,
   });
 
+  const body = await res.text();
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || 'Transcription failed');
+    let msg;
+    try {
+      msg = JSON.parse(body).error;
+    } catch {
+      msg = body;
+    }
+    throw new Error(msg || `HTTP ${res.status}`);
   }
 
-  const { text } = await res.json();
+  const { text } = JSON.parse(body);
   return text;
 }
