@@ -3,7 +3,7 @@
   import { transcribeWhisper } from '../lib/transcribe.js';
   import { createRecognition, isSupported } from '../lib/speech.js';
 
-  const APP_VERSION = 8;
+  const APP_VERSION = 9;
   const PREMIUM_EMAIL = 'usual-polo-uphill@duck.com';
 
   let { userEmail } = $props();
@@ -22,6 +22,11 @@
 
   // Web Speech API for free path
   let recognition = null;
+
+  // Auto-start recording on mount
+  $effect(() => {
+    startRecording();
+  });
 
   function startRecording() {
     error = '';
