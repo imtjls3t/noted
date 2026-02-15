@@ -88,7 +88,7 @@
   </div>
 {:else if !session}
   <div class="center">
-    <h1 class="title">Admin</h1>
+    <h1 class="title">Admin Panel</h1>
     <form class="login-form" onsubmit={(e) => { e.preventDefault(); login(); }}>
       <input type="email" placeholder="Email" bind:value={email} />
       <input type="password" placeholder="Password" bind:value={password} />
@@ -103,7 +103,7 @@
 {:else}
   <div class="admin">
     <header>
-      <h1>Users</h1>
+      <h1>Admin Panel</h1>
       <button class="logout-btn" onclick={logout}>Logout</button>
     </header>
 

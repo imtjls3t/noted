@@ -1,8 +1,12 @@
 <script>
-  import { addEvent } from '../lib/supabase.js';
+  import { addEvent, supabase } from '../lib/supabase.js';
   import { transcribeWhisper } from '../lib/transcribe.js';
   import { createRecognition, isSupported } from '../lib/speech.js';
   import { getMyProfile } from '../lib/profiles.js';
+
+  async function logout() {
+    await supabase.auth.signOut();
+  }
 
   const APP_VERSION = 9;
 
@@ -167,6 +171,8 @@
 </script>
 
 <div class="record-view">
+  <button class="logout-btn" onclick={logout}>Logout</button>
+
   {#if state === 'saved'}
     <div class="saved-flash">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -482,6 +488,21 @@
     gap: 8px;
     color: #5a6785;
     font-size: 11px;
+  }
+
+  .logout-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid #0f3460;
+    background: transparent;
+    color: #8892b0;
+    font-size: 13px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 10;
   }
 
   .update-btn {

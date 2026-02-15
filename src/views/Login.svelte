@@ -13,7 +13,7 @@
     error = '';
 
     const { error: authError } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
+      ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: 'https://imtjls3t.github.io/noted/' } })
       : await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
