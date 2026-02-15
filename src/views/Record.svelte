@@ -17,6 +17,7 @@
   let cancelled = false;
 
   let isPremium = $state(false);
+  let confirmed = $state(false);
 
   // MediaRecorder for Whisper path
   let mediaRecorder = null;
@@ -28,13 +29,24 @@
 
   // Load premium status then auto-start recording
   onMount(async () => {
+    // Detect email confirmation redirect (Supabase puts tokens in hash)
+    const fromEmailConfirm = window.location.hash.includes('access_token');
+    if (fromEmailConfirm) {
+      window.history.replaceState(null, '', window.location.pathname);
+      confirmed = true;
+      setTimeout(() => { confirmed = false; }, 5000);
+    }
+
     try {
       const profile = await getMyProfile();
       isPremium = profile?.is_premium ?? false;
     } catch {
       isPremium = false;
     }
-    startRecording();
+
+    if (!fromEmailConfirm) {
+      startRecording();
+    }
   });
 
   function startRecording() {
@@ -171,6 +183,10 @@
 
 <div class="record-view">
   <button class="logout-btn" onclick={logout}>Logout</button>
+
+  {#if confirmed}
+    <p class="confirmed">Email confirmed</p>
+  {/if}
 
   {#if state === 'saved'}
     <div class="saved-flash">
@@ -487,6 +503,18 @@
     gap: 8px;
     color: #5a6785;
     font-size: 11px;
+  }
+
+  .confirmed {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #4ecdc4;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 10;
+    animation: fadeIn 0.3s ease;
   }
 
   .logout-btn {
