@@ -1,11 +1,12 @@
 <script>
-  import { addEvent, supabase } from '../lib/supabase.js';
+  import { onMount } from 'svelte';
+  import { addEvent } from '../lib/supabase.js';
   import { transcribeWhisper } from '../lib/transcribe.js';
   import { createRecognition, isSupported } from '../lib/speech.js';
   import { getMyProfile } from '../lib/profiles.js';
 
-  async function logout() {
-    await supabase.auth.signOut();
+  function logout() {
+    window.location.href = '/noted/logout';
   }
 
   const APP_VERSION = 9;
@@ -16,7 +17,6 @@
   let cancelled = false;
 
   let isPremium = $state(false);
-  let profileLoaded = $state(false);
 
   // MediaRecorder for Whisper path
   let mediaRecorder = null;
@@ -27,15 +27,14 @@
   let recognition = null;
 
   // Load premium status then auto-start recording
-  $effect(() => {
-    getMyProfile().then(profile => {
+  onMount(async () => {
+    try {
+      const profile = await getMyProfile();
       isPremium = profile?.is_premium ?? false;
-      profileLoaded = true;
-      startRecording();
-    }).catch(() => {
-      profileLoaded = true;
-      startRecording();
-    });
+    } catch {
+      isPremium = false;
+    }
+    startRecording();
   });
 
   function startRecording() {
