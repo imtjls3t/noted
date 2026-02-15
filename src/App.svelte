@@ -32,7 +32,7 @@
 {:else}
   <main class="app">
     {#if activeTab === 'record'}
-      <Record />
+      <Record userEmail={session.user?.email} />
     {:else}
       <Search />
     {/if}
