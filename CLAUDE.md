@@ -5,7 +5,7 @@ Voice-first event logging PWA. Speak it, save it, search it later.
 ## Stack
 
 - **Svelte 5** (runes: `$state`, `$effect`, `$props`) + **Vite 7** — no SvelteKit
-- **Supabase** — auth (email/password) and Postgres (`events` table with `id`, `keywords`, `user_id`, `timestamp`)
+- **Supabase** — auth (email/password) and Postgres (`events` + `profiles` tables)
 - **OpenAI Whisper** — speech-to-text via Supabase Edge Function (premium users)
 - **Web Speech API** — `SpeechRecognition` for voice input (free fallback)
 - **Service worker** — network-first caching strategy (`public/sw.js`), versioned cache (`noted-vN`)
@@ -16,10 +16,13 @@ Voice-first event logging PWA. Speak it, save it, search it later.
 ```
 src/
   main.js              # mount + SW registration
+  admin.js             # mount admin app (separate entry point)
   App.svelte           # session gate, tab routing (record | search)
+  AdminApp.svelte      # admin panel: auth gate, user list, premium toggle
   app.css              # global reset + dark theme base
   lib/
     supabase.js        # client init + CRUD (addEvent, searchEvents, updateEvent, deleteEvent)
+    profiles.js        # profiles CRUD (getMyProfile, listProfiles, togglePremium)
     speech.js          # SpeechRecognition wrapper (createRecognition, isSupported)
     transcribe.js      # Whisper transcription via Supabase Edge Function
   components/
@@ -29,14 +32,20 @@ src/
     Login.svelte       # email/password sign-in / sign-up
     Record.svelte      # voice recording flow with modal, auto-starts recording on mount
     Search.svelte      # debounced search with ilike, renders EventCard list
+admin/
+  index.html           # admin panel HTML entry point → /noted/admin
 public/
   sw.js                # service worker (bump CACHE_NAME on each deploy)
   manifest.json        # PWA manifest
   icon.svg             # app icon
+  logout/
+    index.html         # standalone logout page → /noted/logout (3s redirect)
 supabase/
+  migrations/
+    create_profiles.sql # profiles table, RLS, trigger, seed
   functions/
     transcribe/
-      index.ts         # Edge Function: auth + email check → OpenAI Whisper
+      index.ts         # Edge Function: auth + premium check → OpenAI Whisper
 ```
 
 ## Dev commands
@@ -65,9 +74,18 @@ npm run deploy     # build + gh-pages deploy
 - Edge Function deployed with `--no-verify-jwt` (auth verified manually in function code)
 - Deploy edge function: `SUPABASE_ACCESS_TOKEN=... npx supabase functions deploy transcribe --no-verify-jwt`
 
+## Premium & admin
+
+- Premium status stored in `profiles` table (`is_premium` boolean), managed via admin panel at `/noted/admin`
+- Admin email: `usual-polo-uphill@duck.com` (hardcoded in `AdminApp.svelte` and RLS policies)
+- `profiles` table: `id` (UUID, FK to auth.users), `email`, `is_premium`, `created_at`
+- RLS: admin gets full access, users can read own profile
+- Trigger `on_auth_user_created` auto-creates profile row on signup
+- Vite multi-page build: `index.html` (main app) + `admin/index.html` (admin panel)
+
 ## Whisper transcription
 
-- Premium user email allowlist: hardcoded in both `Record.svelte` and `supabase/functions/transcribe/index.ts`
 - Premium path: MediaRecorder → audio blob → Edge Function → OpenAI Whisper API
 - Free path: Web Speech API via `speech.js`
-- Supabase secrets needed: `OPENAI_API_KEY`
+- Edge function checks `profiles.is_premium` via service role key (no more hardcoded email)
+- Supabase secrets needed: `OPENAI_API_KEY` (+ built-in `SUPABASE_SERVICE_ROLE_KEY`)

@@ -1,6 +1,6 @@
 <script>
   import { supabase } from './lib/supabase.js';
-  import { listProfiles, togglePremium } from './lib/profiles.js';
+  import { listProfiles, togglePremium, deleteUser } from './lib/profiles.js';
 
   const ADMIN_EMAIL = 'usual-polo-uphill@duck.com';
 
@@ -72,6 +72,24 @@
     }
   }
 
+  let confirmDelete = $state(null);
+
+  function promptDelete(profile) {
+    confirmDelete = profile;
+  }
+
+  async function handleDelete() {
+    if (!confirmDelete) return;
+    error = '';
+    try {
+      await deleteUser(confirmDelete.id);
+      profiles = profiles.filter(p => p.id !== confirmDelete.id);
+    } catch (e) {
+      error = e.message;
+    }
+    confirmDelete = null;
+  }
+
   async function logout() {
     await supabase.auth.signOut();
   }
@@ -114,13 +132,24 @@
         {#each profiles as profile}
           <li class="user-row">
             <span class="user-email">{profile.email}</span>
-            <button
-              class="toggle-btn"
-              class:active={profile.is_premium}
-              onclick={() => handleToggle(profile)}
-            >
-              {profile.is_premium ? 'Premium' : 'Free'}
-            </button>
+            <div class="row-actions">
+              <button
+                class="toggle-btn"
+                class:active={profile.is_premium}
+                onclick={() => handleToggle(profile)}
+              >
+                {profile.is_premium ? 'Premium' : 'Free'}
+              </button>
+              <button class="delete-btn" onclick={() => promptDelete(profile)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6"/>
+                  <path d="M14 11v6"/>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+              </button>
+            </div>
           </li>
         {/each}
       </ul>
@@ -130,6 +159,18 @@
       <p class="error">{error}</p>
     {/if}
   </div>
+
+  {#if confirmDelete}
+    <div class="modal-overlay">
+      <div class="modal">
+        <p class="modal-text">Delete user {confirmDelete.email}?</p>
+        <div class="modal-buttons">
+          <button class="modal-btn no" onclick={() => confirmDelete = null}>No</button>
+          <button class="modal-btn yes" onclick={handleDelete}>Yes</button>
+        </div>
+      </div>
+    </div>
+  {/if}
 {/if}
 
 <style>
@@ -278,6 +319,90 @@
   }
 
   .toggle-btn.active {
+    background: #e94560;
+    color: white;
+  }
+
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .delete-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: #8892b0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .delete-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .delete-btn:hover {
+    color: #e94560;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .modal {
+    background: #16213e;
+    border-radius: 16px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    min-width: 260px;
+  }
+
+  .modal-text {
+    color: #e0e0e0;
+    font-size: 15px;
+    text-align: center;
+    word-break: break-all;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .modal-btn.no {
+    background: #0f3460;
+    color: #8892b0;
+  }
+
+  .modal-btn.yes {
     background: #e94560;
     color: white;
   }
