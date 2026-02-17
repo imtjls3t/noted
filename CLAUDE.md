@@ -18,11 +18,11 @@ src/
   main.js              # mount + SW registration
   admin.js             # mount admin app (separate entry point)
   App.svelte           # session gate, tab routing (record | search)
-  AdminApp.svelte      # admin panel: auth gate, user list, premium toggle
+  AdminApp.svelte      # admin panel: auth gate, user list, premium toggle, user deletion
   app.css              # global reset + dark theme base
   lib/
     supabase.js        # client init + CRUD (addEvent, searchEvents, updateEvent, deleteEvent)
-    profiles.js        # profiles CRUD (getMyProfile, listProfiles, togglePremium)
+    profiles.js        # profiles CRUD (getMyProfile, listProfiles, togglePremium, deleteUser)
     speech.js          # SpeechRecognition wrapper (createRecognition, isSupported)
     transcribe.js      # Whisper transcription via Supabase Edge Function
   components/
@@ -44,6 +44,8 @@ supabase/
   migrations/
     create_profiles.sql # profiles table, RLS, trigger, seed
   functions/
+    delete-user/
+      index.ts         # Edge Function: admin-only full user deletion
     transcribe/
       index.ts         # Edge Function: auth + premium check → OpenAI Whisper
 ```
@@ -72,7 +74,7 @@ npm run deploy     # build + gh-pages deploy
 - `APP_VERSION` in `Record.svelte` and `CACHE_NAME` in `public/sw.js` must be bumped together on each deploy
 - Record view shows version number + Update button (bottom-right) to nuke SW cache and reload
 - Edge Function deployed with `--no-verify-jwt` (auth verified manually in function code)
-- Deploy edge function: `SUPABASE_ACCESS_TOKEN=... npx supabase functions deploy transcribe --no-verify-jwt`
+- Deploy edge functions: `SUPABASE_ACCESS_TOKEN=... npx supabase functions deploy <name> --no-verify-jwt`
 
 ## Premium & admin
 
@@ -82,6 +84,7 @@ npm run deploy     # build + gh-pages deploy
 - RLS: admin gets full access, users can read own profile
 - Trigger `on_auth_user_created` auto-creates profile row on signup
 - Vite multi-page build: `index.html` (main app) + `admin/index.html` (admin panel)
+- User deletion: admin delete calls `delete-user` edge function → deletes events, auth user, and profile (FK cascade)
 
 ## Whisper transcription
 
