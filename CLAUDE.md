@@ -86,6 +86,12 @@ npm run deploy     # build + gh-pages deploy
 - Vite multi-page build: `index.html` (main app) + `admin/index.html` (admin panel)
 - User deletion: admin delete calls `delete-user` edge function → deletes events, auth user, and profile (FK cascade)
 
+## Keep-alive
+
+- `.github/workflows/keep-alive.yml` — runs daily at 7:23 UTC, queries `profiles?select=id&limit=1` via REST API
+- Prevents Supabase free-tier project from being paused due to inactivity
+- Requires GitHub Actions secrets: `SUPABASE_ANON_KEY`, `SUPABASE_URL` (hardcoded in workflow as `https://mmouwjthtuydpibxfbkq.supabase.co`)
+
 ## Whisper transcription
 
 - Premium path: MediaRecorder → audio blob → Edge Function → OpenAI Whisper API
